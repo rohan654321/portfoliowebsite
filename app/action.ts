@@ -3,6 +3,7 @@ import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
+// Load environment variables
 dotenv.config();
 
 const contactFormSchema = z.object({
@@ -14,11 +15,11 @@ const contactFormSchema = z.object({
 
 const prisma = new PrismaClient();
 
-
-
-dotenv.config();
-
 async function sendEmail(name: string, email: string, subject: string, message: string) {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        throw new Error("Missing email credentials in environment variables.");
+    }
+
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
