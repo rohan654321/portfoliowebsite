@@ -63,7 +63,7 @@ export default function Contact() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-2 text-white">
-            Get In <span className="text-primary text-blue-400">Touch</span>
+            Get In <span className="text-blue-400">Touch</span>
           </h2>
           <div className="h-1 w-20 bg-primary rounded-full mx-auto mb-6"></div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-gray-400" >
