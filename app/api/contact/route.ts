@@ -1,38 +1,46 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
 import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
+const contactFormSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  subject: z.string().min(5),
+  message: z.string().min(10),
+});
+
 export async function POST(req: Request) {
   try {
-    const { name, email, subject, message } = await req.json();
+    const formData = await req.json();
+    const validatedData = contactFormSchema.parse(formData);
 
-    // Save message to database
-    await prisma.contactMessage.create({ data: { name, email, subject, message } });
+    await prisma.contactMessage.create({
+      data: validatedData,
+    });
 
-    // Set up Nodemailer transporter
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL_USER, // Use your Gmail address
-        pass: process.env.EMAIL_PASS, // Use App Password (not your Gmail password)
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    await transporter.sendMail({
+      from: `"${validatedData.name}" <${process.env.EMAIL_USER}>`,
       to: "mondalrohan201@gmail.com",
-      subject: `New Contact Message: ${subject}`,
-      text: `From: ${name} (${email})\n\nMessage:\n${message}`,
-    };
+      subject: `New Contact Form Submission: ${validatedData.subject}`,
+      text: `Message from ${validatedData.name} (${validatedData.email}):\n\n${validatedData.message}`,
+    });
 
-    // Send the email
-    await transporter.sendMail(mailOptions);
-
-    return NextResponse.json({ success: true, message: "Message sent successfully!" });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ success: false, message: "Something went wrong." }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
   }
 }
