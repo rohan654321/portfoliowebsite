@@ -86,7 +86,7 @@ export default function About() {
             </div>
 
             <p className="text-lg text-gray-300">
-              I&apos;m a passionate frontend developer specializing in creating responsive, accessible, and performant
+              I&apos;m a passionate full-stack developer specializing in creating responsive, accessible, and performant
               user interfaces with React and Next.js.
             </p>
 
