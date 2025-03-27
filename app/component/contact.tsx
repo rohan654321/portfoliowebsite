@@ -9,7 +9,7 @@ import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Github, Linkedin, Mail, Send, Twitter } from "lucide-react"
+import { CheckCircle, Github, Linkedin, Mail, Send, Twitter } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 const formSchema = z.object({
@@ -22,6 +22,11 @@ const formSchema = z.object({
 export default function Contact() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [notification, setNotification] = useState<{
+    visible: boolean
+    message: string
+    type: "success" | "error"
+  } | null>(null)
 
   const {
     register,
@@ -35,19 +40,48 @@ export default function Contact() {
 
   async function onSubmit(value: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
+
     try {
+      console.log("Submitting form data:", value)
+
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(value),
       })
+
       const data = await response.json()
-      if (!response.ok) throw new Error(data.message || "Failed to send message")
-      reset()
-      alert("Message Sent!")
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      console.log("API Response:", data)
+
+      if (!response.ok) throw new Error(data.error || "Failed to send message")
+
+      reset() // Reset form after successful submission
+
+      // Show success notification
+      setNotification({
+        visible: true,
+        message: "Message sent successfully! We'll get back to you soon.",
+        type: "success",
+      })
+
+      // Hide notification after 5 seconds
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } catch (error) {
-      alert("Something went wrong")
+      console.error("Form submission error:", error)
+
+      // Show error notification instead of alert
+      setNotification({
+        visible: true,
+        message: "Something went wrong. Please try again.",
+        type: "error",
+      })
+
+      // Hide notification after 5 seconds
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } finally {
       setIsSubmitting(false)
     }
@@ -55,6 +89,27 @@ export default function Contact() {
 
   return (
     <section id="contact" ref={ref} className="py-24 bg-gradient-to-b from-slate-900 to-slate-950">
+      {notification && notification.visible && (
+        <div className="fixed top-0 left-0 right-0 flex justify-center items-start pt-20 z-50">
+          <div
+            className={`${
+              notification.type === "success" ? "bg-green-600 border-green-400" : "bg-red-600 border-red-400"
+            } text-white p-4 rounded-md shadow-lg border max-w-md mx-4`}
+          >
+            <div className="flex items-center gap-3">
+              {notification.type === "success" ? (
+                <CheckCircle className="h-6 w-6 flex-shrink-0" />
+              ) : (
+                <span className="h-6 w-6 flex items-center justify-center rounded-full bg-red-500 flex-shrink-0">
+                  !
+                </span>
+              )}
+              <p>{notification.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -66,7 +121,7 @@ export default function Contact() {
             Get In <span className="text-blue-400">Touch</span>
           </h2>
           <div className="h-1 w-20 bg-primary rounded-full mx-auto mb-6"></div>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-gray-400" >
+          <p className="text-muted-foreground max-w-2xl mx-auto text-gray-400">
             Have a project in mind? Let&apos;s connect and bring your ideas to life!
           </p>
         </motion.div>
@@ -85,6 +140,7 @@ export default function Contact() {
             },
           }}
         >
+          {/* ... (rest of your existing code remains the same) */}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 20 },

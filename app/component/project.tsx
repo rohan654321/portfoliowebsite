@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useInView } from "react-intersection-observer"
+import { useState, useRef } from "react"
+import { motion, useInView } from "framer-motion"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,10 +22,8 @@ type Project = {
 }
 
 export default function Projects() {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  })
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, amount: 0.1 })
 
   const [filter, setFilter] = useState("All")
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -38,7 +35,7 @@ export default function Projects() {
       description: "A full-stack e-commerce platform with payment integration",
       image: "/placeholder.svg?height=400&width=600",
       category: "Web App",
-      technologies: ["React", "Node.js", "MongoDB", "Stripe"],
+      technologies: ["React","Redux", "Node.js", "MongoDB", "Express.Js"],
       github: "https://github.com",
       demo: "https://demo.com",
       longDescription:
@@ -46,35 +43,68 @@ export default function Projects() {
     },
     {
       id: 2,
-      title: "Task Management App",
-      description: "A drag-and-drop task management application",
+      title: "Blog Application",
+      description: "A drag-and-drop Blog Application application",
       image: "/placeholder.svg?height=400&width=600",
       category: "Web App",
       technologies: ["React", "TypeScript", "Firebase", "Tailwind CSS"],
       github: "https://github.com",
       demo: "https://demo.com",
       longDescription:
-        "A task management application that allows users to create, organize, and track tasks using a drag-and-drop interface. Built with React and TypeScript, it uses Firebase for authentication and real-time database.",
+        "A well-crafted blog application is more than just a platform for publishing articles—it’s a dynamic space where ideas come to life. Our blog application, built with a modern tech stack, offers a seamless and engaging experience for both writers and readers. With a clean and intuitive user interface, authors can effortlessly create, edit, and manage their content, while readers enjoy a smooth browsing experience. The platform supports rich text formatting, media uploads, and categorization to enhance content organization. Built with React and TypeScript, it ensures a fast and responsive performance, while Firebase integration enables real-time updates and secure authentication. Whether you're an individual blogger or managing a multi-author publication, this application provides the perfect balance of simplicity and powerful features to bring your stories to a wider audience.",
+    },
+    {
+      id: 3,
+      title: "Ai Dating Application",
+      description: "A automated matching Ai dating application",
+      image: "/placeholder.svg?height=400&width=600",
+      category: "Web App",
+      technologies: ["Next.Js", "TypeScript", "Open Ai Api",'MongoDb', "Tailwind CSS"],
+      github: "https://github.com",
+      demo: "https://demo.com",
+      longDescription:
+        "An AI-powered dating application revolutionizes the way people connect by using advanced algorithms and machine learning to create meaningful relationships. Unlike traditional dating apps, this platform goes beyond simple swiping by analyzing user preferences, behavior, and personality traits to offer highly compatible matches. With AI-driven chat assistants, users receive personalized conversation starters and dating advice, making interactions more engaging and natural. The application also ensures safety with real-time content moderation and verification features to prevent fake profiles and enhance trust. Built with cutting-edge technologies, including React and AI-based recommendation systems, this dating app provides a seamless, intuitive, and intelligent matchmaking experience, helping users find genuine connections in a more efficient and enjoyable way.",
     },
   ]
 
-  const categories = ["Web App"]
+  const categories = [ "Web App"]
+
+  // Add these animation variants at the top of your component, after the projects definition
+  const leftVariant = {
+    hidden: { opacity: 0, x: -100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  }
+
+  const rightVariant = {
+    hidden: { opacity: 0, x: 100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  }
+
+  // Memoize filtered projects to avoid unnecessary re-renders
   const filteredProjects = filter === "All" ? projects : projects.filter((project) => project.category === filter)
 
   return (
-    <section id="projects" ref={ref} className="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
+    <section id="projects" ref={ref} className="py-20 bg-gradient-to-b from-slate-950 to-slate-900">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-2 text-white">
-            My <span className=" text-blue-600">Projects</span>
+            My <span className="text-indigo-400">Projects</span>
           </h2>
-          <div className="h-1 w-20 bg-primary rounded-full mx-auto mb-6"></div>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-gray-300">
+          <div className="h-1 w-20 bg-indigo-500 rounded-full mx-auto mb-6"></div>
+          <p className="max-w-2xl mx-auto text-gray-300">
             Explore my recent projects showcasing my skills and expertise in web development, mobile applications, and
             UI design.
           </p>
@@ -87,8 +117,8 @@ export default function Projects() {
                 onClick={() => setFilter(category)}
                 className={
                   filter === category
-                    ? "bg-primary hover:bg-primary/90"
-                    : "border-primary/20 hover:bg-primary/20 hover:text-primary hover:text-white"
+                    ? "bg-indigo-600 hover:bg-indigo-700"
+                    : "border-indigo-500/20 hover:bg-indigo-500/20 hover:text-indigo-400"
                 }
               >
                 {category}
@@ -97,33 +127,16 @@ export default function Projects() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.2,
-              },
-            },
-          }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {filteredProjects.map((project) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.5 },
-                },
-              }}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              variants={index % 2 === 0 ? leftVariant : rightVariant}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card className="overflow-hidden h-full bg-slate-800/50 backdrop-blur-sm border-primary/20 hover:border-primary/50 transition-all duration-300 group">
+              <Card className="overflow-hidden h-full bg-gradient-to-br from-indigo-900/30 to-purple-900/30 backdrop-blur-sm border-indigo-500/20 hover:border-indigo-500/50 transition-all duration-300 group">
                 <div className="relative h-48 overflow-hidden">
                   <Image
                     src={project.image || "/placeholder.svg"}
@@ -134,39 +147,34 @@ export default function Projects() {
                 </div>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
-                  <p className="text-muted-foreground text-sm">{project.description}</p>
+                  <p className="text-sm text-gray-300">{project.description}</p>
                 </CardContent>
                 <CardFooter className="px-6 pb-6 pt-0 flex justify-between">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-primary/20 hover:bg-primary/20 hover:text-primary"
+                    className="border-indigo-500/20 hover:bg-indigo-500/20 hover:text-indigo-400"
                     onClick={() => setSelectedProject(project)}
                   >
                     View Details
                   </Button>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="hover:text-primary">
+                    <Button variant="ghost" size="icon" className="hover:text-indigo-400">
                       <a href={project.github} target="_blank" rel="noopener noreferrer">
                         <Github className="h-4 w-4" />
                       </a>
                     </Button>
-                    {/* <Button variant="ghost" size="icon" className="hover:text-primary">
-                      <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </Button> */}
                   </div>
                 </CardFooter>
               </Card>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
-      <Dialog open={!!selectedProject} onOpenChange={(open: unknown) => !open && setSelectedProject(null)}>
+      <Dialog open={!!selectedProject} onOpenChange={(open) => !open && setSelectedProject(null)}>
         {selectedProject && (
-          <DialogContent className="max-w-3xl bg-slate-800 border-primary/20">
+          <DialogContent className="max-w-3xl bg-slate-800 border-indigo-500/20">
             <DialogHeader>
               <DialogTitle className="text-xl">{selectedProject.title}</DialogTitle>
               <DialogDescription>{selectedProject.category}</DialogDescription>
@@ -182,14 +190,14 @@ export default function Projects() {
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 {selectedProject.technologies.map((tech, index) => (
-                  <Badge key={index} variant="outline" className="bg-primary/10">
+                  <Badge key={index} variant="outline" className="bg-indigo-500/10 border-indigo-500/30">
                     {tech}
                   </Badge>
                 ))}
               </div>
-              <p className="text-muted-foreground">{selectedProject.longDescription}</p>
+              <p className="text-gray-300">{selectedProject.longDescription}</p>
               <div className="flex justify-between">
-                <Button className="bg-primary hover:bg-primary/90">
+                <Button className="bg-indigo-600 hover:bg-indigo-700">
                   <a
                     href={selectedProject.demo}
                     target="_blank"
@@ -200,7 +208,7 @@ export default function Projects() {
                     Live Demo
                   </a>
                 </Button>
-                <Button variant="outline" className="border-primary/20 hover:bg-primary/20 hover:text-primary">
+                <Button variant="outline" className="border-indigo-500/20 hover:bg-indigo-500/20 hover:text-indigo-400">
                   <a
                     href={selectedProject.github}
                     target="_blank"

@@ -9,6 +9,7 @@ import Skills from "@/app/component/skills"
 import Contact from "@/app/component/contact"
 import Footer from "@/app/component/footer"
 import LoadingScreen from "@/app/component/loading-screen"
+import Experience from "./component/experience"
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
@@ -32,7 +33,7 @@ export default function Home() {
         <About />
         <Projects />
         <Skills />
-        {/* <Experience /> */}
+        <Experience />
         <Contact />
         <Footer />
       </main>

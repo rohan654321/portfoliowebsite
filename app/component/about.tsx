@@ -1,33 +1,40 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { useInView } from "react-intersection-observer"
+import { useRef } from "react"
+import { motion, useInView } from "framer-motion"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default function About() {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  })
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, amount: 0.1 })
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.1,
       },
     },
   }
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+  const leftVariant = {
+    hidden: { opacity: 0, x: -100 },
     visible: {
       opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  }
+
+  const rightVariant = {
+    hidden: { opacity: 0, x: 100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
     },
   }
 
@@ -45,16 +52,20 @@ export default function About() {
   ]
 
   return (
-    <section id="about" ref={ref} className="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
+    <section
+      id="about"
+      ref={ref}
+      className="py-20 bg-gradient-to-b from-slate-950 to-slate-900 dark:from-slate-950 dark:to-slate-900"
+    >
       <div className="container mx-auto px-4">
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate={inView ? "visible" : "hidden"}
+          animate={isInView ? "visible" : "hidden"}
           className="grid md:grid-cols-2 gap-12 items-center"
         >
-          <motion.div variants={itemVariants} className="relative">
-            <div className="relative w-full max-w-md mx-auto aspect-square rounded-2xl overflow-hidden border-2 border-primary/30 shadow-xl shadow-primary/10 group">
+          <motion.div variants={leftVariant} className="relative">
+            <div className="relative w-full max-w-md mx-auto aspect-square rounded-2xl overflow-hidden border-2 border-indigo-500/30 shadow-xl shadow-indigo-500/10 group">
               <Image
                 src="/logo.jpg"
                 alt="Profile"
@@ -66,25 +77,26 @@ export default function About() {
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="space-y-6">
+          <motion.div variants={rightVariant} className="space-y-6">
             <div className="inline-block">
               <h2 className="text-3xl md:text-4xl font-bold mb-2 text-white">
-                About <span className=" text-blue-800">Me</span>
+                About <span className="text-indigo-400">Me</span>
               </h2>
-              <div className="h-1 w-20 bg-primary rounded-full "></div>
+              <div className="h-1 w-20 bg-indigo-500 rounded-full"></div>
             </div>
 
-            <p className="text-muted-foreground text-lg text-gray-400">
-              I&apos;m a passionate frontend developer with 5+ years of experience building modern web applications. I
-              specialize in creating responsive, accessible, and performant user interfaces with React and Next.js.
+            <p className="text-lg text-gray-300">
+              I&apos;m a passionate frontend developer specializing in creating responsive, accessible, and performant
+              user interfaces with React and Next.js.
             </p>
 
-            <p className="text-muted-foreground text-gray-400">
-              My journey in web development started when I built my first website at 16. Since then, I&apos;ve worked with
-              startups and established companies to deliver exceptional digital experiences.
+            <p className="text-gray-300">
+              My journey in web development started with a curiosity for creating digital experiences that are both
+              functional and beautiful. I enjoy solving complex problems and turning ideas into reality through clean,
+              efficient code.
             </p>
 
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-primary/20">
+            <Card className="bg-indigo-900/30 backdrop-blur-sm border-indigo-500/20">
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4 text-white">Core Skills</h3>
                 <div className="flex flex-wrap gap-2">
@@ -92,7 +104,7 @@ export default function About() {
                     <Badge
                       key={index}
                       variant="outline"
-                      className="bg-primary/10 hover:bg-primary/20 transition-colors duration-300 text-sm py-1.5 text-white "
+                      className="bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors duration-300 text-sm py-1.5 text-white border-indigo-500/30"
                     >
                       {skill}
                     </Badge>
@@ -106,3 +118,4 @@ export default function About() {
     </section>
   )
 }
+
