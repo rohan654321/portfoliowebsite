@@ -27,6 +27,7 @@ export default function Contact() {
     message: string
     type: "success" | "error"
   } | null>(null)
+  const [showThankYou, setShowThankYou] = useState(false)
 
   const {
     register,
@@ -57,6 +58,9 @@ export default function Contact() {
 
       reset() // Reset form after successful submission
 
+      // Show thank you message
+      setShowThankYou(true)
+
       // Show success notification
       setNotification({
         visible: true,
@@ -68,6 +72,11 @@ export default function Contact() {
       setTimeout(() => {
         setNotification(null)
       }, 5000)
+
+      // Hide thank you message after 10 seconds
+      setTimeout(() => {
+        setShowThankYou(false)
+      }, 10000)
     } catch (error) {
       console.error("Form submission error:", error)
 
@@ -195,49 +204,69 @@ export default function Contact() {
           >
             <Card className="bg-blue-600/50 backdrop-blur-sm border-primary/20">
               <CardContent className="p-6">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div>
-                    <Input placeholder="Your name" {...register("name")} className="bg-slate-800/50 border-slate-700" />
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
-                  </div>
+                {showThankYou ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center justify-center py-8 text-center"
+                  >
+                    <div className="mb-4 rounded-full bg-green-500/20 p-4">
+                      <CheckCircle className="h-12 w-12 text-green-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">Thank You!</h3>
+                    <p className="text-gray-300 mb-4">
+                      {notification?.message || "Your message has been sent successfully. We'll get back to you soon!"}
+                    </p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <div>
+                      <Input
+                        placeholder="Your name"
+                        {...register("name")}
+                        className="bg-slate-800/50 border-slate-700"
+                      />
+                      {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+                    </div>
 
-                  <div>
-                    <Input
-                      placeholder="Your email"
-                      {...register("email")}
-                      className="bg-slate-800/50 border-slate-700"
-                    />
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
-                  </div>
+                    <div>
+                      <Input
+                        placeholder="Your email"
+                        {...register("email")}
+                        className="bg-slate-800/50 border-slate-700"
+                      />
+                      {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                    </div>
 
-                  <div>
-                    <Input
-                      placeholder="Subject"
-                      {...register("subject")}
-                      className="bg-slate-800/50 border-slate-700"
-                    />
-                    {errors.subject && <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>}
-                  </div>
+                    <div>
+                      <Input
+                        placeholder="Subject"
+                        {...register("subject")}
+                        className="bg-slate-800/50 border-slate-700"
+                      />
+                      {errors.subject && <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>}
+                    </div>
 
-                  <div>
-                    <Textarea
-                      placeholder="Your message"
-                      {...register("message")}
-                      className="bg-slate-800/50 border-slate-700 min-h-[120px]"
-                    />
-                    {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>}
-                  </div>
+                    <div>
+                      <Textarea
+                        placeholder="Your message"
+                        {...register("message")}
+                        className="bg-slate-800/50 border-slate-700 min-h-[120px]"
+                      />
+                      {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>}
+                    </div>
 
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      "Sending..."
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Send className="h-4 w-4" /> Send Message
-                      </span>
-                    )}
-                  </Button>
-                </form>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        "Sending..."
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Send className="h-4 w-4" /> Send Message
+                        </span>
+                      )}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
           </motion.div>
